@@ -6,7 +6,7 @@
 /*   By: agarijo- <agarijo-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/11 10:22:12 by agarijo-          #+#    #+#             */
-/*   Updated: 2022/11/03 19:06:17 by agarijo-         ###   ########.fr       */
+/*   Updated: 2023/03/24 15:26:29 by agarijo-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,39 +67,45 @@ static char	*ft_ins_word(const char *s, int word_counter)
 	return (word);
 }
 
-static char	**ft_fill_result_array(char **result_array, const char *s, char c)
+void	free_memory(char **result_array)
 {
-	int		counter;
-	int		flag;
-	int		result_array_counter;
+	int	counter;
 
 	counter = 0;
-	flag = 0;
-	result_array_counter = 0;
-	while (*(s + counter))
+	while (result_array[counter])
 	{
-		if (*(s + counter) != c && flag != 1)
-		{
-			*(result_array + result_array_counter) = ft_ins_word((s + counter),
-					ft_size_word((s + counter), c));
-			result_array_counter++;
-			flag = 1;
-		}
-		else if (*(s + counter) == c)
-			flag = 0;
-		counter++;
+		free(result_array[counter]);
+		result_array[counter] = NULL;
+		counter ++;
 	}
-	*(result_array + result_array_counter) = NULL;
-	return (result_array);
+	free(result_array);
 }
 
-char	**ft_split(char const *s, char c)
+char	**ft_split(const char *s, char c)
 {
-	char	**result_array;
+	int		cr;
+	int		flag;
+	int		r_a_c;
+	char	**r_a;
 
-	result_array = malloc((ft_count_words_s(s, c) + 1) * sizeof(char *));
-	if (!result_array)
+	cr = 0;
+	flag = 0;
+	r_a_c = 0;
+	r_a = ft_calloc((ft_count_words_s(s, c) + 1), sizeof(char *));
+	if (!r_a)
 		return (NULL);
-	result_array = ft_fill_result_array(result_array, s, c);
-	return (result_array);
+	while (*(s + cr))
+	{
+		if (*(s + cr) != c && flag != 1)
+		{
+			*(r_a + r_a_c) = ft_ins_word((s + cr), ft_size_word((s + cr), c));
+			if (!*(r_a + r_a_c++))
+				return (free_memory(r_a), NULL);
+			flag = 1;
+		}
+		else if (*(s + cr) == c)
+			flag = 0;
+		cr++;
+	}
+	return (*(r_a + r_a_c) = NULL, r_a);
 }
